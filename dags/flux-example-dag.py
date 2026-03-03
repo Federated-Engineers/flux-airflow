@@ -9,11 +9,9 @@ DAG_ID = 'latest-demo'
 
 
 # simple task to test full flow
-def demo():
-    wr.s3.to_parquet(
-        df=pd.DataFrame({'col': [1, 2, 3]}),
-        path='s3://poc-bucket-oremeta/prefix/my_file.parquet')
-    return "Data written to s3"
+def add_two_numbers():
+    result = 2 + 2
+    return f"Result is {result}"
 
 
 default_args = {
@@ -38,6 +36,6 @@ dag = DAG(
 
 get_latest_report_file_task = PythonOperator(
     dag=dag,
-    task_id='get_latest_report_file',
-    python_callable=demo
+    task_id='add_two_numbers',
+    python_callable=add_two_numbers
 )
