@@ -1,7 +1,5 @@
 import datetime
 
-import awswrangler as wr
-import pandas as pd
 from airflow import DAG
 from airflow.operators.python import PythonOperator
 
