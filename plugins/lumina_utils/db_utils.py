@@ -15,8 +15,3 @@ def get_db_connection(connection_string: str):
 
     return conn
         
-        
-        
-        
-# "postgresql://postgres.lksygmgwphnbbvdbgzaw:pd0S4b4DwgE0IH6L63lq@aws-1-eu-west-1.pooler.supabase.com/postgres"
-        
