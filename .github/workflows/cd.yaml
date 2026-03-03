@@ -48,18 +48,18 @@ jobs:
           
           # Clone repository using HTTPS URL without token
           git clone https://github.com/Federated-Engineers/kubernetes-deployments.git kubernetes-deployments
-          cd kubernetes-deployments/applications/airflow/
+          cd kubernetes-deployments/applications/production-values/
           
           if [[ "$OSTYPE" == "darwin"* ]]; then
-            sed -i '' "s|tag: version-.*|tag: version-${{ github.sha }}|g" values.yaml
+            sed -i '' "s|tag: version-.*|tag: version-${{ github.sha }}|g" flux-airflow-values.yaml
           else
-            sed -i "s|tag: version-.*|tag: version-${{ github.sha }}|g" values.yaml
+            sed -i "s|tag: version-.*|tag: version-${{ github.sha }}|g" flux-airflow-values.yaml
           fi
             
           # Commit changes
           git config --global user.name "GitHub Actions"
           git config --global user.email "actions@github.com"
-          git add values.yaml
+          git add flux-airflow-values.yaml
           git commit -m "Update image to version-${{ github.sha }}"
           
           # Push
