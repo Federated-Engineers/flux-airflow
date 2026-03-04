@@ -1,6 +1,6 @@
 import pandas as pd
-from plugins.utils.database import get_db_connection
 from airflow.models import Variable
+from plugins.utils.database import get_db_connection
 
 
 def extract_lumina_data():
