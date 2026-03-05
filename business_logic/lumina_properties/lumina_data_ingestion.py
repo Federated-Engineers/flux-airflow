@@ -1,3 +1,25 @@
+# import pandas as pd
+# from airflow.models import Variable
+# from plugins.utils.database import get_db_connection
+
+
+# def extract_lumina_data():
+#     credentials = Variable.get("postgres_conn_string")
+#     test_df = pd.read_sql(
+#         "select * from ay_test.airflow",
+#         con=get_db_connection(credentials)
+#     )
+#     return test_df
+
+
+
+
+
+
+
+from fileinput import filename
+import os
+
 import pandas as pd
 from airflow.models import Variable
 from plugins.utils.database import get_db_connection
@@ -5,8 +27,35 @@ from plugins.utils.database import get_db_connection
 
 def extract_lumina_data():
     credentials = Variable.get("postgres_conn_string")
-    test_df = pd.read_sql(
-        "select * from ay_test.airflow",
-        con=get_db_connection(credentials)
-    )
-    return test_df
+    conn=get_db_connection(credentials)
+    
+    temp_dir = "/opt/airflow/temp"
+    os.makedir(temp_dir, exist_ok=True)
+
+    tables= [
+        "ay_test.airflow",
+        "ay_test.property",
+        "renovation_legders"
+    ]
+
+    for table_name in tables:
+        query =  f"SELECT * FROM {table_name}"
+
+        try:
+            chunk_filter = pd.read_sql(query, con=conn, chunksize=40000)
+            
+            for i, chunk_df in enumerate(chunk_filter):
+                local_file = f"opt/airflow/temp/{table_name}_batch_{i}.parquet"
+                
+                # to local
+                chunk_df.to_parquet(local_file)
+
+                # os.remove(local_file)
+
+        except Exception as e:
+            raise ValueError(f"Could not read {table_name}. It might have been dropped or renamed. contact 'Rofiat'{e}")
+
+
+
+    return "Extraction was Successful"
+
