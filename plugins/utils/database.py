@@ -1,0 +1,15 @@
+from sqlalchemy import create_engine
+
+
+def get_db_connection(connection_string: str):
+    """
+    The connection string should be in this format:
+    "postgresql://username:password@host:port/database"
+
+    params:
+           connection_string: The connection string for the database
+    """
+    
+    conn = create_engine(connection_string)
+
+    return conn
