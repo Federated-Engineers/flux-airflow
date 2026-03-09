@@ -13,11 +13,11 @@ def extract_lumina_data():
     os.makedirs(temp_dir, exist_ok=True)
 
     tables = [
-        "historical_transactions",
-        "property_metadata",
-        "renovation_ledgers",
-        "neighborhood_demographics",
-        "zoning_permits"
+        "historical.historical_transactions",
+        "historical.property_metadata",
+        "historical.renovation_ledgers",
+        "historical.neighborhood_demographics",
+        "historical.zoning_permits"
     ]
 
     for table_name in tables:
@@ -29,14 +29,12 @@ def extract_lumina_data():
             for i, chunk_df in enumerate(chunk_filter):
                 local_file = os.path.join(temp_dir, f"{table_name}_batch_{i}.parquet")
 
-                # to local
                 chunk_df.to_parquet(local_file)
 
-                # os.remove(local_file)
+                os.remove(local_file)
 
         except Exception as e:
             raise ValueError(
-                f"Could not read {table_name}. Error: {str(e)}"
-                )
+                f"Could not read {table_name}. Error: {str(e)}")
 
     return "Extraction was Successful"
