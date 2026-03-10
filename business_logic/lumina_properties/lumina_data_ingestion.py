@@ -2,7 +2,6 @@ import os
 
 import pandas as pd
 import awswrangler as wr
-# from airflow.providers.amazon.aws.hooks.s3 import S3HooK
 from datetime import datetime
 from airflow.models import Variable
 from plugins.utils.database import get_db_connection
