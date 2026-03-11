@@ -22,8 +22,13 @@ def extract_lumina_data():
         "historical.zoning_permits"
     ]
 
+  
+
+
     for table_name in tables:
-        s3_folder = table_name.replace('.', '_')
+        s3_folder = ("Lumina_historical_data")
+        # s3_folder = table_name.replace('.', '_')
+        table_convention= table_name.split('.')[-1]
         
         query = f"SELECT * FROM {table_name}"
 
@@ -32,7 +37,7 @@ def extract_lumina_data():
 
             for i, chunk_df in enumerate(chunk_filter):
                
-                s3_path = f"s3://{bucket_name}/raw_data/{s3_folder}/{table_name}_{today}_{i}.parquet"
+                s3_path = f"s3://{bucket_name}/raw_data/{s3_folder}/{table_convention}_{today}_{i}.parquet"
 
                 wr.s3.to_parquet(
                     df=chunk_df,
