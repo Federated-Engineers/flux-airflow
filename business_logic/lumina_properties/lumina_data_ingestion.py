@@ -14,7 +14,7 @@ def extract_lumina_data():
     This function connects to the Lumina brick source database (hosted on Supabase),
     retrieves data from selected tables within the `historical` schema, and writes
     the results to S3 using AWS Wrangler. Tables with date columns are partitioned
-    by year and month to optimize downstream analytics and query performance
+    by year and month to optimize downstream analytics and query performance.
     """
     logger.info("Starting Lumnina data extration process")
 
@@ -45,17 +45,18 @@ def extract_lumina_data():
                 path=f"s3://{s3_bucket}/{s3_prefix}/{table_name}/",
                 dataset=True,
                 mode="overwrite_partitions",
-                partition_cols=["year", "month"])
+                partition_cols=["year", "month"],
+            )
         else:
             wr.s3.to_parquet(
                 df=df,
                 path=f"s3://{s3_bucket}/{s3_prefix}/{table_name}/",
                 dataset=True,
-                mode="overwrite"
+                mode="overwrite",
             )
-            
+
         logger.info(f"Finished loading {table_name} into {s3_bucket}")
 
-    logger.info(f"Lumina data extraction completed")
+    logger.info("Lumina data extraction completed")  # ← F541: removed f-string, no placeholder
 
     return "Extraction Sucessful"

@@ -4,8 +4,7 @@ from airflow.providers.standard.operators.empty import EmptyOperator
 from airflow.providers.standard.operators.python import PythonOperator
 from airflow.sdk import DAG
 
-from business_logic.lumina_properties.lumina_data_ingestion import \
-    extract_lumina_data
+from business_logic.lumina_properties.lumina_data_ingestion import extract_lumina_data
 
 default_args = {
     "owner": "lumina_bricks_property",
@@ -20,12 +19,12 @@ with DAG(
     schedule="@daily",
     catchup=False,
 ) as dag:
-    
+
     start = EmptyOperator(task_id="start")
 
     extract_db_to_s3 = PythonOperator(
         task_id="extract_db_to_s3",
-        python_callable=extract_lumina_data
+        python_callable=extract_lumina_data,
     )
 
     start >> extract_db_to_s3
