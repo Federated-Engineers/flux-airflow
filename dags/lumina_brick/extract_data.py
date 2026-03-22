@@ -1,10 +1,12 @@
 from datetime import datetime, timedelta
-from airflow.sdk import DAG
-from airflow.providers.standard.operators.python import PythonOperator
-from airflow.providers.standard.operators.empty import EmptyOperator
 
-from business_logic.lumina_properties.lumina_data_ingestion import \
-    extract_lumina_data
+from airflow.sdk import DAG
+from airflow.providers.standard.operators.empty import EmptyOperator
+from airflow.providers.standard.operators.python import PythonOperator
+
+from business_logic.lumina_properties.lumina_data_ingestion import (
+    extract_lumina_data,
+)
 
 
 default_args = {
