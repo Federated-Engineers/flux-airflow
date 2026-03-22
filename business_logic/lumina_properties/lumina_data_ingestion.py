@@ -2,8 +2,8 @@ import logging
 
 import awswrangler as wr
 import pandas as pd
-
 from airflow.models import Variable
+
 from plugins.utils.database import get_db_connection
 
 logger = logging.getLogger(__name__)
