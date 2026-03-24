@@ -13,6 +13,7 @@ default_args = {
     "retry_delay": timedelta(minutes=2),
 }
 
+
 with DAG(
     dag_id="lumina_dag",
     default_args=default_args,
