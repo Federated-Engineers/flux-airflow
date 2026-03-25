@@ -7,6 +7,8 @@ All changes to this repository must be made through a `Pull Request (PR)`. Direc
 
 ## REPOSITORY ARCHITECTURE
 
+
+
 <img width="1431" height="663" alt="Screenshot 2026-02-27 at 16 23 31" src="https://github.com/user-attachments/assets/f5442518-de1f-4330-9205-15418a79cc71" />
 
 The Airflow DAG deployment workflow follows these steps:
