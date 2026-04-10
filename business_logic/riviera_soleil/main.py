@@ -15,7 +15,7 @@ day = today.day
 
 BUCKET = "riviera_bucket"
 SHEET_NAME = Variable.get("SHEET_NAME")
-SERVICE_ACCOUNT_FILE = json.loads(Variable.get("SERVICE_ACCOUNT_FILE"))
+SERVICE_ACCOUNT_FILE = json.loads(Variable.get("CREDENTIAL_JSON"))
 
 SCOPE = [
     "https://www.googleapis.com/auth/spreadsheets",
@@ -25,8 +25,9 @@ SCOPE = [
 logging.basicConfig(format="%(levelname)s:%(name)s:%(message)s")
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
-# get last row count
 
+
+# get last row count
 def get_last_rowcount(file_name:str):
     """ Getting the row count from s3 path for tracking folder 
     """
@@ -40,7 +41,7 @@ def get_last_rowcount(file_name:str):
         return 0
 
 
-
+# save row count
 def save_row_count(file_name:str, row_count):
     """ Save current row into s3 for tracking
     """
@@ -81,8 +82,7 @@ def get_load_data():
             if current_row_count > last_row_count:
                 logger.info(f"new data found for {file_name}. Current row count: {current_row_count}, Last row count: {last_row_count}")
                
-
-           
+                
                 new_data = df.iloc[last_row_count:]
                 logger.info(f"new data to be loaded for {file_name}: {len(new_data)} rows") 
                 wr.catalog.create_database(name='riviera_db', exist_ok=True)   

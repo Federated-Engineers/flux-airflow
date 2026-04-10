@@ -7,7 +7,7 @@ from business_logic.riviera_soleil.main import get_load_data
 default_args = {
     'owner': 'airflow',
     'depends_on_past': False,
-    'start_date': datetime(2026, 04, 11),
+    'start_date': datetime(2026, 4, 10),
     'email': ['chinyere.nwigwe126@gmail.com'],
     'email_on_failure': True,
     'email_on_retry': False,
@@ -17,8 +17,8 @@ default_args = {
 dag = DAG(
     dag_id="google_sheets_to_s3",
     description="Moving data from Google Sheets to S3",
-    schedule_interval="@weekly",
-    start_date=datetime(2026, 4, 11),
+    schedule="@daily",
+    start_date=datetime(2026, 4, 10),
     default_args=default_args,
 ) 
 
