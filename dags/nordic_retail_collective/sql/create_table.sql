@@ -1,4 +1,4 @@
-CREATE TABLE IF NOT EXISTS nordic_retail (
+CREATE TABLE IF NOT EXISTS logistics (
     order_id VARCHAR(50),
     warehouse_origin VARCHAR(50),
     warehouse_zone VARCHAR(50),

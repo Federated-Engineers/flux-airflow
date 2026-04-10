@@ -1,0 +1,65 @@
+
+from datetime import datetime, timedelta
+
+from airflow import DAG
+from airflow.operators.python import PythonOperator
+from airflow.providers.amazon.aws.transfers.s3_to_redshift import \
+    S3ToRedshiftOperator
+from business_logic.nordic_retail_collective.nordic_data_transform import \
+    transform_json_to_parquet_s3
+from airflow.providers.common.sql.operators.sql import SQLExecuteQueryOperator
+
+
+DAG_ID = 'nordic_retail_collective'
+
+default_args = {
+    "owner": "nordic_retail_collective",
+    "retries": 2,
+    "retry_delay": timedelta(minutes=2),
+}
+
+# constants
+S3_BUCKET = "nordic-s3-bucket"
+S3_KEY = "s3://nordic-s3-bucket/nordic_logistics/"
+REDSHIFT_SCHEMA = "nordic_retail"
+REDSHIFT_TABLE = "logistics"
+REDSHIFT_CONN_ID = "redshift"
+AWS_CONN_ID = "aws_default"
+
+dag = DAG(
+    dag_id="nordic_retail_collective",
+    description="Loads NRC \
+        transactional data to Redshift daily",
+    default_args=default_args,
+    schedule_interval="0 0 * * *",
+    catchup=False,
+)
+
+generate_transaction_data = PythonOperator(
+    task_id="transform_to_s3",
+    python_callable=transform_json_to_parquet_s3,
+    dag=dag
+)
+
+execute_query = SQLExecuteQueryOperator(
+    task_id="create_table",
+    conn_id=REDSHIFT_CONN_ID,
+    database="production",
+    sql="./sql/create_table.sql",
+    split_statements=True,
+    return_last=False,
+)
+
+s3_to_redshift = S3ToRedshiftOperator(
+    task_id="s3_to_redshift",
+    schema=REDSHIFT_SCHEMA,
+    table=REDSHIFT_TABLE,
+    s3_bucket=S3_BUCKET,
+    s3_key=S3_KEY,
+    copy_options=["FORMAT AS PARQUET"],
+    redshift_conn_id=REDSHIFT_CONN_ID,
+    aws_conn_id=AWS_CONN_ID,
+    dag=dag
+)
+
+generate_transaction_data >> s3_to_redshift
