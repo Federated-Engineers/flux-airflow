@@ -1,8 +1,9 @@
+from datetime import datetime, timedelta
+
 from airflow import DAG
 from airflow.operators.python import PythonOperator
-from datetime import datetime, timedelta
-from business_logic.riviera_soleil.main import get_load_data
 
+from business_logic.riviera_soleil.main import get_load_data
 
 default_args = {
     'owner': 'airflow',

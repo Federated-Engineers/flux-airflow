@@ -1,11 +1,11 @@
+import datetime
 import json
+import logging
 
 import awswrangler as wr
-import pandas as pd
-import datetime
 import gspread
+import pandas as pd
 from airflow.sdk import Variable
-import logging
 from google.oauth2.service_account import Credentials
 
 today =  datetime.date.today()
