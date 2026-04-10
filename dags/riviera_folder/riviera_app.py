@@ -9,10 +9,10 @@ default_args = {
     'depends_on_past': False,
     'start_date': datetime(2026, 04, 11),
     'email': ['chinyere.nwigwe126@gmail.com'],
-    'email_on_failure': False,
+    'email_on_failure': True,
     'email_on_retry': False,
-    'retries': 1,
-    'retry_delay': timedelta(minutes=5)}
+    'retries': 2,
+    'retry_delay': timedelta(minutes=2)}
 
 dag = DAG(
     dag_id="google_sheets_to_s3",

@@ -1,18 +1,21 @@
+import json
+
 import awswrangler as wr
 import pandas as pd
 import datetime
 import gspread
 from airflow.sdk import Variable
 import logging
-
+from google.oauth2.service_account import Credentials
 
 today =  datetime.date.today()
 year = today.year
 month = today.month
 day = today.day
+
 BUCKET = "riviera_bucket"
 SHEET_NAME = Variable.get("SHEET_NAME")
-SERVICE_ACCOUNT_FILE = Variable.get("SERVICE_ACCOUNT_FILE")
+SERVICE_ACCOUNT_FILE = json.loads(Variable.get("SERVICE_ACCOUNT_FILE"))
 
 SCOPE = [
     "https://www.googleapis.com/auth/spreadsheets",
@@ -27,9 +30,9 @@ logger.setLevel(logging.INFO)
 def get_last_rowcount(file_name:str):
     """ Getting the row count from s3 path for tracking folder 
     """
-    track_path = f"s3://{BUCKET}/tracking/{file_name}_row_count.csv"
+    track_path = f"s3://{BUCKET}/tracking/{file_name}_row_count.parquet"
     try:
-        row_track = wr.s3.read_csv(track_path)
+        row_track = wr.s3.read_parquet(track_path)
         count = int(row_track['row_count'].iloc[0])
         return count
     except Exception as e:
@@ -43,9 +46,9 @@ def save_row_count(file_name:str, row_count):
     """
     try:
         df_track = pd.DataFrame({"row_count":[row_count]})
-        wr.s3.to_csv(
+        wr.s3.to_parquet(
             df= df_track, 
-            path = f"s3://{BUCKET}/tracking/{file_name}_row_count.csv",
+            path = f"s3://{BUCKET}/tracking/{file_name}_row_count.parquet",
             index = False)
         logger.info(f"row count updated for {file_name}:{row_count}")
     except Exception as e:
@@ -72,28 +75,29 @@ def get_load_data():
         
             df = pd.DataFrame(values[1:], columns = values[0])
             file_name = ws.title
-            csv_file = f"{file_name}.csv"
             current_row_count = len(df)
             last_row_count = get_last_rowcount(file_name)
 
-            if current_row_count <= last_row_count:
+            if current_row_count > last_row_count:
                 logger.info(f"new data found for {file_name}. Current row count: {current_row_count}, Last row count: {last_row_count}")
-                continue
+               
 
-            df.to_csv(csv_file, index=False)
-        
-        wr.catalog.create_database(name='riviera_db', exist_ok=True)   
-        wr.s3.to_parquet(
-                    df=df,
-                    path=f"s3://{BUCKET}/year={year}/month={month}/day={day}/{file_name}",
+           
+                new_data = df.iloc[last_row_count:]
+                logger.info(f"new data to be loaded for {file_name}: {len(new_data)} rows") 
+                wr.catalog.create_database(name='riviera_db', exist_ok=True)   
+                wr.s3.to_parquet(
+                    df=new_data,
+                    path=f"s3://{BUCKET}/year={year}/month={month}/day={day}/{file_name}/",
                     dataset=True,
                     database="riviera_db",
                     table= file_name,
                     mode = 'append'
                )
-        logger.info(f"saved: {file_name}")
-        save_row_count(file_name, current_row_count)
-        
+                logger.info(f"saved: {file_name}")
+                save_row_count(file_name, current_row_count)
+            else:
+                logger.info(f"No new data found for {file_name}. Current row count: {current_row_count}, Last row count: {last_row_count}")
     except Exception as e:
         logger.error(f"failed to load data due to {e}")
         raise
