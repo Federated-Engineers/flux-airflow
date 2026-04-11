@@ -44,7 +44,7 @@ generate_transaction_data = PythonOperator(
 execute_query = SQLExecuteQueryOperator(
     task_id="create_table",
     conn_id=REDSHIFT_CONN_ID,
-    database="production",
+    database="nordic_logistics_warehouse",
     sql="./sql/create_table.sql",
     split_statements=True,
     return_last=False,
@@ -62,4 +62,4 @@ s3_to_redshift = S3ToRedshiftOperator(
     dag=dag
 )
 
-generate_transaction_data >> s3_to_redshift
+generate_transaction_data >> execute_query >> s3_to_redshift
