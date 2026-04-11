@@ -20,9 +20,19 @@ session = new_session()
 
 
 def transform_json_to_parquet_s3(source_bucket,
-                                 source_path,
-                                 target_bucket,
-                                 target_path):
+                                 source_path, target_bucket, target_path):
+
+    """
+        This function reads data from an S3 bucket as JSON,
+        transforming it, and write the output
+        back to a new S3 bucket as parquet.
+
+        Parameters:
+        source_bucket (str): Name of the source S3 bucket.
+        source_path (str): Path/key to the JSON data in the source bucket.
+        target_bucket (str): Name of the destination S3 bucket.
+        target_path (str): Path/key where the Parquet file will be saved.
+    """
     source_path = f's3://{source_bucket}/{source_path}'
     target_path = f's3://{target_bucket}/{target_path}'
 
@@ -41,8 +51,8 @@ def transform_json_to_parquet_s3(source_bucket,
         'shipping_details.tracking_events': 'tracking_events',
         'system_flags.is_disputed': 'is_disputed',
         'system_flags.api_version': 'api_version',
-        'system_flags.ingested_at': 'ingested_at',
-    },)
+        'system_flags.ingested_at': 'ingested_at'}
+    )
     df_flat_transformed = df_flat_transformed.drop(columns=['tracking_events'])
     dt_series = pd.to_datetime(df_flat_transformed['ingested_at'])
     df_flat_transformed['ingested_date'] = dt_series.dt.date
@@ -62,6 +72,4 @@ def transform_json_to_parquet_s3(source_bucket,
 
 
 transform_json_to_parquet_s3(source_bucket,
-                             source_path,
-                             target_bucket,
-                             target_path)
+                             source_path, target_bucket, target_path)
