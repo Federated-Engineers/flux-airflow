@@ -2,6 +2,7 @@ import os
 
 import pandas as pd
 from airflow.models import Variable
+
 from plugins.utils.database import get_db_connection
 
 
