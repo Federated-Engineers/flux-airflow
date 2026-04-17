@@ -1,11 +1,11 @@
 
-from datetime import datetime, timedelta
+from datetime import timedelta
 
-from airflow import DAG
-from airflow.operators.python import PythonOperator
 from airflow.providers.amazon.aws.transfers.s3_to_redshift import \
     S3ToRedshiftOperator
 from airflow.providers.common.sql.operators.sql import SQLExecuteQueryOperator
+from airflow.providers.standard.operators.python import PythonOperator
+from airflow.sdk import DAG
 from business_logic.nordic_retail_collective.nordic_data_transform import \
     transform_json_to_parquet_s3
 
@@ -18,8 +18,9 @@ default_args = {
 }
 
 # constants
-S3_BUCKET = "nordic-s3-bucket"
-S3_KEY = "s3://nordic-s3-bucket/nordic_logistics/"
+S3_BUCKET = "federated-engineers-production-flux-data-engineers-nordic"
+S3_KEY = "s3://federated-engineers-production-flux-data-engineers-nordic/ \
+        nordic_logistics/"
 REDSHIFT_SCHEMA = "nordic_retail"
 REDSHIFT_TABLE = "logistics"
 REDSHIFT_CONN_ID = "redshift"
@@ -30,13 +31,19 @@ dag = DAG(
     description="Loads NRC \
         transactional data to Redshift daily",
     default_args=default_args,
-    schedule_interval="0 0 * * *",
+    schedule="0 0 * * *",
     catchup=False,
 )
 
 generate_transaction_data = PythonOperator(
     task_id="transform_to_s3",
     python_callable=transform_json_to_parquet_s3,
+    op_kwargs={
+        "source_bucket": "nrc-logistics-raw",
+        "source_path": "shipcloud-api/",
+        "target_bucket": "federated-engineers-production-flux-data-engineers-nordic",
+        "target_path": "nordic_logistics"
+    },
     dag=dag
 )
 

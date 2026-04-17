@@ -13,7 +13,7 @@ logger = logging.getLogger(__name__)
 
 source_bucket = "nrc-logistics-raw"
 source_path = "shipcloud-api/"
-target_bucket = "nordic-s3-bucket"
+target_bucket = "federated-engineers-production-flux-data-engineers-nordic"
 target_path = "nordic_logistics"
 
 session = new_session()
@@ -65,11 +65,11 @@ def transform_json_to_parquet_s3(source_bucket,
         path=target_path,
         index=False,
         partition_cols=['ingested_year', 'ingested_month', 'ingested_day'],
-        dataset=True,
-        boto3_session=session
+        dataset=True
         )
     logger.info("Successfully converted JSON to Parquet in S3.")
 
 
-transform_json_to_parquet_s3(source_bucket,
-                             source_path, target_bucket, target_path)
+if __name__ == "__main__":
+    transform_json_to_parquet_s3(source_bucket,
+                                 source_path, target_bucket, target_path)
