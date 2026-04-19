@@ -39,7 +39,8 @@ generate_transaction_data = PythonOperator(
     op_kwargs={
         "source_bucket": "nrc-logistics-raw",
         "source_path": "shipcloud-api/",
-        "target_bucket": "federated-engineers-production-flux-data-engineers-nordic",
+        "target_bucket":
+            "federated-engineers-production-flux-data-engineers-nordic",
         "target_path": "nordic_logistics"
     },
     dag=dag
