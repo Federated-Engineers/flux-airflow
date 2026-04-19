@@ -16,9 +16,6 @@ source_path = "shipcloud-api/"
 target_bucket = "federated-engineers-production-flux-data-engineers-nordic"
 target_path = "nordic_logistics"
 
-session = new_session()
-
-
 def transform_json_to_parquet_s3(source_bucket,
                                  source_path, target_bucket, target_path):
 
@@ -60,6 +57,7 @@ def transform_json_to_parquet_s3(source_bucket,
     df_flat_transformed['ingested_month'] = dt_series.dt.month
     df_flat_transformed['ingested_day'] = dt_series.dt.day
     logger.info(f"Writing Parquet data to {target_path}...")
+    
     wr.s3.to_parquet(
         df=df_flat_transformed,
         path=target_path,
