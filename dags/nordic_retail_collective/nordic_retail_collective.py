@@ -5,7 +5,6 @@ from airflow.providers.amazon.aws.transfers.s3_to_redshift import \
 from airflow.providers.common.sql.operators.sql import SQLExecuteQueryOperator
 from airflow.providers.standard.operators.python import PythonOperator
 from airflow.sdk import DAG
-
 from business_logic.nordic_retail_collective.nordic_data_transform import \
     transform_json_to_parquet_s3
 
