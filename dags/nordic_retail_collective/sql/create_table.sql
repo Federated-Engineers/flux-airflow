@@ -7,8 +7,5 @@ CREATE TABLE IF NOT EXISTS logistics (
     is_disputed BOOLEAN,
     api_version VARCHAR(50),
     ingested_at TIMESTAMP,
-    ingested_date DATE,
-    ingested_year SMALLINT,
-    ingested_month SMALLINT,
-    ingested_day SMALLINT
+    ingested_date DATE
 );

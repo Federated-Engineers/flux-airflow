@@ -13,18 +13,16 @@ DAG_ID = 'nordic_retail_collective'
 
 default_args = {
     "owner": "nordic_retail_collective",
-    "retries": 2,
+    "retries": 3,
     "retry_delay": timedelta(minutes=2),
 }
 
 # constants
 S3_BUCKET = "federated-engineers-production-flux-data-engineers-nordic"
-S3_KEY = "s3://federated-engineers-production-flux-data-engineers-nordic/ \
-        nordic_logistics/"
+S3_KEY = "nordic_logistics/"
 REDSHIFT_SCHEMA = "nordic_retail"
 REDSHIFT_TABLE = "logistics"
 REDSHIFT_CONN_ID = "redshift"
-AWS_CONN_ID = "aws_default"
 
 dag = DAG(
     dag_id="nordic_retail_collective",
@@ -58,13 +56,12 @@ execute_query = SQLExecuteQueryOperator(
 
 s3_to_redshift = S3ToRedshiftOperator(
     task_id="s3_to_redshift",
-    schema=REDSHIFT_SCHEMA,
+    schema="public",
     table=REDSHIFT_TABLE,
     s3_bucket=S3_BUCKET,
     s3_key=S3_KEY,
     copy_options=["FORMAT AS PARQUET"],
     redshift_conn_id=REDSHIFT_CONN_ID,
-    aws_conn_id=AWS_CONN_ID,
     dag=dag
 )
 
