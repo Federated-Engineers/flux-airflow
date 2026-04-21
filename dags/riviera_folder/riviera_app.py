@@ -9,7 +9,6 @@ default_args = {
     'owner': 'airflow',
     'depends_on_past': False,
     'start_date': datetime(2026, 4, 10),
-    'email': ['chinyere.nwigwe126@gmail.com'],
     'email_on_failure': True,
     'email_on_retry': False,
     'retries': 2,
@@ -18,9 +17,10 @@ default_args = {
 dag = DAG(
     dag_id="google_sheets_to_s3",
     description="Moving data from Google Sheets to S3",
-    schedule="@daily",
+    schedule= "0 0 * * *",
     start_date=datetime(2026, 4, 10),
     default_args=default_args,
+    catchup=False
 ) 
 
 upload_to_s3 = PythonOperator(
