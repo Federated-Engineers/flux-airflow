@@ -1,5 +1,4 @@
 import datetime
-import json
 import logging
 import boto3
 import awswrangler as wr
@@ -7,11 +6,11 @@ import gspread
 import pandas as pd
 from airflow.sdk import Variable
 from google.oauth2.service_account import Credentials
-import json as Json
+import json
 
 
 
-BUCKET = "riviera_bucket" # temporal name
+BUCKET = "riviera_bucket" # temporal name for the bucket, to be replaced with the actual bucket name in production
 SHEET_NAME = Variable.get("SHEET_NAME")
 
 
