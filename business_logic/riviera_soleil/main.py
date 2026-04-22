@@ -1,10 +1,10 @@
 import datetime
 import logging
-import boto3
-import awswrangler as wr
+#import boto3
+#import awswrangler as wr
 import gspread
 import pandas as pd
-from airflow.sdk import Variable
+#from airflow.sdk import Variable
 from google.oauth2.service_account import Credentials
 import json
 
@@ -84,19 +84,29 @@ def save_row_count(file_name:str, row_count):
         logger.error(f"failed to save row count for {file_name}:{e}")
         raise Exception(f"failed to save row count for {file_name}:{e}")
 
+# Module to initialize the connection to google sheet
+
+def connect_to_google_sheet():
+    """ Initialize the connection to google sheet using gspread and google service account credentials
+    """
+    try:
+        SERVICE_ACCOUNT_INFO  = json.loads(get_credentials("/production/google-service-account/credentials"))
+        credentials = Credentials.from_service_account_info(SERVICE_ACCOUNT_INFO, scopes=SCOPE)
+        client = gspread.authorize(credentials)
+        spreadsheet = client.open(SHEET_NAME)
+        logger.info(f"connected successfully into Googlesheet:{SHEET_NAME}")
+        return spreadsheet
+    except Exception as e:
+        logger.error(f"failed to connect to google sheet: {e}")
+        raise ConnectionError(f"failed to connect to google sheet: {e}")
 
 def get_load_data():
     """ Get data from google sheet and load into s3 in parquet format, 
         also track the row count for each sheet to avoid duplicate loading   
     """
     try:
-        SERVICE_ACCOUNT_INFO  = json.loads(get_credentials("/production/google-service-account/credentials"))
-
-        credentials = Credentials.from_service_account_info(SERVICE_ACCOUNT_INFO, scopes=SCOPE)
-        client = gspread.authorize(credentials)
-        spreadsheet = client.open(SHEET_NAME)
+        spreadsheet = connect_to_google_sheet()
         worksheets = spreadsheet.worksheets()[1:]
-        logger.info(f"connected successfully into Googlesheet:{SHEET_NAME}")
         logger.info(f"total sheets found: {len(worksheets)}")
         for ws in worksheets:
             values= ws.get_all_values()
@@ -138,5 +148,5 @@ def get_load_data():
 
 
 
-# if __name__ == "__main__":
-#     get_load_data()
+if __name__ == "__main__":
+  get_load_data()
