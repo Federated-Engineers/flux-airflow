@@ -23,6 +23,7 @@ dag = DAG(
     default_args=default_args,
     schedule="0 0 * * *",
     catchup=False,
+    tags=["nrc", "redshift", "s3", "etl"]
 )
 
 execute_query = SQLExecuteQueryOperator(
