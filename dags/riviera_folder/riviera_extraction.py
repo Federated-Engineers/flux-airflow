@@ -3,7 +3,7 @@ from datetime import datetime, timedelta
 from airflow import DAG
 from airflow.operators.python import PythonOperator
 
-from business_logic.riviera_soleil.main import get_load_data
+from business_logic.riviera_soleil.riviera_data_ingestion import load_data
 
 default_args = {
     'owner': 'airflow',
@@ -25,7 +25,7 @@ dag = DAG(
 
 upload_to_s3 = PythonOperator(
     task_id="upload_to_s3",
-    python_callable=get_load_data,
+    python_callable=load_data,
     dag=dag,
 )
 
