@@ -3,7 +3,7 @@ import datetime
 from airflow import DAG
 from airflow.operators.python import PythonOperator
 
-DAG_ID = 'latest-demo'
+DAG_ID = "latest-demo"
 
 
 # simple task to test full flow
@@ -13,12 +13,12 @@ def add_two_numbers():
 
 
 default_args = {
-    'owner': 'Federated-Engineers',
-    'depends_on_past': False,
-    'start_date': datetime.datetime(2021, 11, 15),
-    'retries': 3,
-    'retry_delay': datetime.timedelta(seconds=5),
-    'execution_timeout': datetime.timedelta(minutes=10)
+    "owner": "Federated-Engineers",
+    "depends_on_past": False,
+    "start_date": datetime.datetime(2021, 11, 15),
+    "retries": 3,
+    "retry_delay": datetime.timedelta(seconds=5),
+    "execution_timeout": datetime.timedelta(minutes=10),
 }
 
 
@@ -28,12 +28,10 @@ dag = DAG(
     # schedule_interval='13 8,18 * * 1-6',
     max_active_runs=1,
     catchup=False,
-    tags=[DAG_ID]
+    tags=[DAG_ID],
 )
 
 
 get_latest_report_file_task = PythonOperator(
-    dag=dag,
-    task_id='add_two_numbers',
-    python_callable=add_two_numbers
+    dag=dag, task_id="add_two_numbers", python_callable=add_two_numbers
 )

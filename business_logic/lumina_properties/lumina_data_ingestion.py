@@ -18,7 +18,7 @@ def extract_lumina_data():
         "property_metadata",
         "renovation_ledgers",
         "neighborhood_demographics",
-        "zoning_permits"
+        "zoning_permits",
     ]
 
     for table_name in tables:
@@ -28,7 +28,9 @@ def extract_lumina_data():
             chunk_filter = pd.read_sql(query, con=conn, chunksize=40000)
 
             for i, chunk_df in enumerate(chunk_filter):
-                local_file = os.path.join(temp_dir, f"{table_name}_batch_{i}.parquet")
+                local_file = os.path.join(
+                    temp_dir, f"{table_name}_batch_{i}.parquet"
+                )
 
                 # to local
                 chunk_df.to_parquet(local_file)
@@ -36,8 +38,6 @@ def extract_lumina_data():
                 # os.remove(local_file)
 
         except Exception as e:
-            raise ValueError(
-                f"Could not read {table_name}. Error: {str(e)}"
-                )
+            raise ValueError(f"Could not read {table_name}. Error: {str(e)}")
 
     return "Extraction was Successful"

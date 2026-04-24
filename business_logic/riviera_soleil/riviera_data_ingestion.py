@@ -7,8 +7,7 @@ from plugins.load_data_s3_glue_cat import load_data_s3
 
 
 def load_data():
-    riviera_config = Variable.get(
-      "riviera_properties", deserialize_json=True)
+    riviera_config = Variable.get("riviera_properties", deserialize_json=True)
 
     SHEET_NAME = riviera_config["SHEET_NAME"]
     FILE_PATH = riviera_config["FILE_PATH"]
@@ -21,6 +20,7 @@ def load_data():
     for sheet_data in all_sheets_data:
         df = sheet_data["df"]
         FILE_NAME = sheet_data["FILE_NAME"]
-        load_data_s3(BUCKET_NAME, DATABASE_NAME, FILE_NAME, year, month, day, df)   
-    return ("Data loaded successfully")
-
+        load_data_s3(
+            BUCKET_NAME, DATABASE_NAME, FILE_NAME, year, month, day, df
+        )
+    return "Data loaded successfully"

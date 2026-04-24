@@ -13,9 +13,7 @@ my_dag = DAG(
 )
 
 lumina_pipeline = PythonOperator(
-    dag=my_dag,
-    python_callable=extract_lumina_data,
-    task_id="lumina_pipeline"
-    )
+    dag=my_dag, python_callable=extract_lumina_data, task_id="lumina_pipeline"
+)
 
 lumina_pipeline

@@ -9,7 +9,7 @@ def get_db_connection(connection_string: str):
     params:
            connection_string: The connection string for the database
     """
-    
+
     conn = create_engine(connection_string)
 
     return conn
