@@ -3,8 +3,9 @@ import datetime
 from airflow.providers.standard.operators.python import PythonOperator
 from airflow.sdk import DAG
 
-from business_logic.lumina_properties.lumina_data_ingestion import \
-    extract_lumina_data
+from business_logic.lumina_properties.lumina_data_ingestion import (
+    extract_lumina_data,
+)
 
 my_dag = DAG(
     dag_id="lumina",

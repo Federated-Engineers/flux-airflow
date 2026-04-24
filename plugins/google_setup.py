@@ -18,7 +18,8 @@ logger.setLevel(logging.INFO)
 
 
 def connect_get_data_from_google_sheet(SHEET_NAME, FILE_PATH):
-    """Initialize the connection to google sheet using gspread and google service account credentials
+    """Initialize the connection to google sheet using gspread
+    and google service account credentials
     Here we assume that the google credentials are stored in a JSON file
     """
     try:
@@ -41,7 +42,8 @@ def connect_get_data_from_google_sheet(SHEET_NAME, FILE_PATH):
             file_name = ws.title
             all_sheets_data.append({"df": df, "FILE_NAME": file_name})
         logger.info(
-            f"connected successfully into Googlesheet:{SHEET_NAME}, len: {len(all_sheets_data)}"
+            f"""connected successfully into Googlesheet:{SHEET_NAME},
+            len: {len(all_sheets_data)}"""
         )
         return all_sheets_data
     except Exception as e:
