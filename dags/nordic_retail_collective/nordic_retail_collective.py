@@ -10,7 +10,7 @@ DAG_ID = 'nordic_retail_collective'
 
 default_args = {
     "owner": "nordic_retail_collective",
-    "retries": 3,
+    "retries": 2,
     "retry_delay": timedelta(minutes=2),
 }
 
