@@ -28,11 +28,13 @@ def load_data_s3(
     wr.catalog.create_database(name=DATABASE_NAME, exist_ok=True)
     wr.s3.to_parquet(
         df=df,
-        path=f"""s3://{BUCKET_NAME}/year={year}/month={month}/day={day}
-        /{FILE_NAME}.parquet""",
+        path=(
+            f"s3://{BUCKET_NAME}"
+            f"/year={year}/month={month}/day={day}"
+            f"/{FILE_NAME}.parquet"),
         dataset=True,
         database=DATABASE_NAME,
         table=FILE_NAME,
-        mode="overwrite_partition",
+        mode="overwrite_partitions",
     )
     logger.info(f"saved: {len(df)} rows into s3 for {FILE_NAME} successfully")
