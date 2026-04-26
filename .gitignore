@@ -1,6 +1,6 @@
 logs/
 venv/
+<<<<<<< HEAD
 *__pycache__*
 .ipynb_checkpoints
-
 
