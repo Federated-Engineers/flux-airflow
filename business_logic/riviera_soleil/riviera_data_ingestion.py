@@ -3,7 +3,7 @@ from airflow.sdk import Variable
 from plugins.aws import get_ssm_parameter
 from plugins.date_parts import get_current_date_parts
 from plugins.google_sheets import connect_get_data_from_google_sheet
-from plugins.load_data_s3_glue_cat import load_data_s3
+from plugins.load_data_s3_glue_cat import load_data_to_s3
 
 
 def ingest_riviera_data_into_s3():
@@ -14,13 +14,17 @@ def ingest_riviera_data_into_s3():
     BUCKET_NAME = riviera_config["BUCKET_NAME"]
     DATABASE_NAME = riviera_config["DATABASE_NAME"]
 
-    year, month, day = get_current_date_parts()
+    dt = get_current_date_parts()
+    df['year'] = dt['year']
+    df['month'] = dt['month']
+    df['day'] = dt['day']
+
     get_ssm_parameter(FILE_PATH)
     all_sheets_data = connect_get_data_from_google_sheet(SHEET_NAME, FILE_PATH)
     for sheet_data in all_sheets_data:
         df = sheet_data["df"]
-        FILE_NAME = sheet_data["FILE_NAME"]
-        load_data_s3(
-            BUCKET_NAME, DATABASE_NAME, FILE_NAME, year, month, day, df
+        TABLE_NAME = sheet_data["FILE_NAME"]
+        load_data_to_s3(
+            BUCKET_NAME, DATABASE_NAME, TABLE_NAME, dt['year'], dt['month'], dt['day'], df
         )
     return "Data loaded successfully"

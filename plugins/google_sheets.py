@@ -5,7 +5,7 @@ import gspread
 import pandas as pd
 from google.oauth2.service_account import Credentials
 
-from plugins.aws_ssm import get_credentials
+from plugins.aws import get_ssm_parameter
 
 SCOPE = [
     "https://www.googleapis.com/auth/spreadsheets",
@@ -24,7 +24,7 @@ def connect_get_data_from_google_sheet(SHEET_NAME, FILE_PATH):
     """
     try:
 
-        SERVICE_ACCOUNT_INFO = json.loads(get_credentials(FILE_PATH))
+        SERVICE_ACCOUNT_INFO = json.loads(get_ssm_parameter(FILE_PATH))
         credentials = Credentials.from_service_account_info(
             SERVICE_ACCOUNT_INFO, scopes=SCOPE
         )
