@@ -9,4 +9,3 @@ def get_current_date_parts():
         'month': now.month,
         'day': now.day
     }
-
