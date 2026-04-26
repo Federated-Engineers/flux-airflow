@@ -7,7 +7,7 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 
-def get_credentials(FILE_PATH):
+def get_ssm_parameter(FILE_PATH):
     """Get credentials from AWS ssm
     - param_name: the name of the parameter in ssm to retrieve
     the credentials for google service account
