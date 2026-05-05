@@ -1,14 +1,14 @@
 """
 Fetch patient hospital visit data from Google Sheets.
 """
-import pandas as pd
-from airflow.providers.google.suite.hooks.drive import GoogleDriveHook
 import io
+import logging
+
+import awswrangler as wr
+import pandas as pd
 from airflow.models import Variable
 from airflow.providers.amazon.aws.hooks.s3 import S3Hook
-import logging
-import awswrangler as wr
-
+from airflow.providers.google.suite.hooks.drive import GoogleDriveHook
 
 logger = logging.getLogger(__name__)
 

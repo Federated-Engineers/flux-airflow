@@ -1,16 +1,16 @@
+import logging
+from datetime import datetime, timedelta
+
 from airflow import DAG
 from airflow.providers.standard.operators.python import PythonOperator
-from datetime import datetime, timedelta
-import logging 
 
-from business_logic.neuralNest.get_patient_data \
-    import _get_patient_hospital_visit_data
-from business_logic.neuralNest.get_finance_user_data  \
-    import _get_finance_user_data
-from business_logic.neuralNest.get_finance_classification_data \
-    import get_finance_classification_data
-from business_logic.neuralNest.get_ehealth_data \
-    import get_ehealth_data
+from business_logic.neuralNest.get_ehealth_data import get_ehealth_data
+from business_logic.neuralNest.get_finance_classification_data import \
+    get_finance_classification_data
+from business_logic.neuralNest.get_finance_user_data import \
+    _get_finance_user_data
+from business_logic.neuralNest.get_patient_data import \
+    _get_patient_hospital_visit_data
 
 logger = logging.getLogger(__name__)
 

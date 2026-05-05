@@ -1,13 +1,14 @@
 """
 Fetch finance DataWH user data from Google Sheets.
 """
-import pandas as pd
-from airflow.providers.google.suite.hooks.sheets import GSheetsHook
-from airflow.models import Variable
-import logging
 import json
+import logging
+
 import awswrangler as wr
+import pandas as pd
+from airflow.models import Variable
 from airflow.providers.amazon.aws.hooks.s3 import S3Hook
+from airflow.providers.google.suite.hooks.sheets import GSheetsHook
 
 logger = logging.getLogger(__name__)
 
