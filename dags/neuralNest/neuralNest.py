@@ -2,8 +2,10 @@ import logging
 from datetime import datetime, timedelta
 
 from airflow import DAG
-from airflow.providers.standard.operators.python import PythonOperator
-from business_logic.neuralNest.get_ehealth_data import get_ehealth_data
+from airflow.providers.standard.operators.python \
+    import PythonOperator
+from business_logic.neuralNest.get_ehealth_data \
+    import get_ehealth_data
 from business_logic.neuralNest.get_finance_classification_data import \
     get_finance_classification_data
 from business_logic.neuralNest.get_finance_user_data import \
