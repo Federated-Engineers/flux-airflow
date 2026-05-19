@@ -3,7 +3,7 @@ from airflow.sdk import Variable
 from plugins.aws import get_ssm_parameter
 from plugins.current_date import get_current_day_month_year
 from plugins.google_sheets import connect_get_data_from_google_sheet
-from plugins.load_data_s3_glue_cat import load_data_to_s3
+from plugins.load_data_s3_glue import load_data_to_s3
 
 
 def ingest_riviera_data_into_s3():
