@@ -23,3 +23,4 @@ def get_ssm_parameter(ssm_parameter_name: str):
                                     WithDecryption=True)
     ssm_params_value = response['Parameter']['Value']
     return ssm_params_value
+
