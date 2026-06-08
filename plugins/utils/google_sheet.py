@@ -99,3 +99,5 @@ def get_data_from_gsheet(gsheet_id: str, ssm_path: str, sheet_name: str) -> pd.D
         )
         raise
 
+if __name__ == "__main__":
+    print("google_sheet module loaded successfully")
