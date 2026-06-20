@@ -1,5 +1,6 @@
-from alpenmechanik_data import run_pipeline
 import logging
+
+from alpenmechanik_data import run_pipeline
 
 logger = logging.getLogger()
 

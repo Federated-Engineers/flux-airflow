@@ -4,7 +4,6 @@ import os
 
 import awswrangler as wr
 import pandas as pd
-
 from plugins.utils.google_sheet import get_data_from_gsheet
 
 logger = logging.getLogger()
