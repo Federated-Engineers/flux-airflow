@@ -1,7 +1,10 @@
 awswrangler==3.14.0
 Faker==39.0.0
 boto3==1.42.34
-SQLAlchemy==2.0.48
+SQLAlchemy==2.0.49
 psycopg2-binary==2.9.11
 gspread==6.2.1
 google-auth==2.49.0
+SQLAlchemy==2.0.49
+psycopg2-binary==2.9.11
+
