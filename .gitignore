@@ -13,4 +13,5 @@ transfer.tf
 user.tf
 variables.tf.envenv
 env/
-build.terraform
+build
+.terraform
