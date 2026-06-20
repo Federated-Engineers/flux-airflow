@@ -1,7 +1,8 @@
 from datetime import datetime, timedelta
 
+from airflow.providers.amazon.aws.operators.lambda_function import \
+    LambdaInvokeFunctionOperator
 from airflow.sdk import DAG
-from airflow.providers.amazon.aws.operators.lambda_function import LambdaInvokeFunctionOperator
 
 DAG_ID = "alpenmechanik_data_AG"
 
@@ -27,4 +28,4 @@ with DAG(
         aws_conn_id="aws_default",
         invocation_type="RequestResponse",
         log_type="Tail",
-        )
+    )
