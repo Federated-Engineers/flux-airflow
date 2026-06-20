@@ -1,3 +1,14 @@
 logs/
 venv/
 __pycache__/
+.terrform.lock.hcl
+backend.tf
+cloudwatch.tf
+iam.tf
+lambda.tf
+provider.tf
+s3.tf
+terraform.tfvars
+transfer.tf
+user.tf
+variables.tf.env
