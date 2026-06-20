@@ -26,4 +26,5 @@ with DAG(
         function_name="sheet-transformer",
         aws_conn_id="aws_default",
         invocation_type="RequestResponse",
-        log_type="Tail",)
+        log_type="Tail",
+        )
