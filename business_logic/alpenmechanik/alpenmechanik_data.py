@@ -1,69 +1,142 @@
+import hashlib
 import logging
+import os
 
 import awswrangler as wr
 import pandas as pd
+
 from plugins.utils.google_sheet import get_data_from_gsheet
 
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s %(levelname)s:%(name)s:%(message)s'
-)
-logger = logging.getLogger(__name__)
+logger = logging.getLogger()
+logger.setLevel(logging.INFO)
 
 
-SHEET_KEY = "1IIr3cYvnT7T7IWMD-naJ-IqghvOgP5aFEybT-7ecO2w"
-SSM_PATH = "/production/google-service-account/credentials"
+SHEET_KEY = os.environ["SHEET_KEY"]
+SSM_PATH = os.environ["SSM_PATH"]
+S3_BUCKET_NAME = os.environ["S3_BUCKET_NAME"]
+
+S3_PREFIX = "asset_repairs"
+FILENAME = "asset_repair_condition.csv"
 
 
 def get_data():
     """
-    To fetch the data from the goooglesheet.
+    Extract data from Google Sheet.
     """
-    all_data = get_data_from_gsheet(SHEET_KEY, SSM_PATH)
-    return all_data
+
+    try:
+        logger.info("Fetching data from Google Sheet")
+
+        data = get_data_from_gsheet(
+            sheet_key=SHEET_KEY,
+            ssm_path=SSM_PATH)
+
+        if not data:
+            raise ValueError("Google Sheet returned no data")
+
+        logger.info("Successfully extracted %s records", len(data))
+
+        return data
+    except Exception:
+        logger.exception("Failed to extract data from Google Sheet")
+        raise
 
 
-def transform_all_data_to_csv(all_data):
+def transform_data(data):
     """
-    Takes the already fetched data and returns a DataFrame.
+    Convert extracted data to DataFrame.
     """
-    df = pd.DataFrame(all_data)
 
-    logger.info(f"Successfully transformed {len(df)} records into a DataFrame")
+    try:
+        if data is None:
+            raise ValueError("Input data is None")
+        df = pd.DataFrame(data)
 
-    return df
+        if df.empty:
+            raise ValueError("Generated DataFrame is empty")
+
+        logger.info(
+            "Transformed %s rows",
+            len(df))
+
+        return df
+
+    except Exception:
+        logger.exception(
+            "Failed during data transformation")
+        raise
 
 
-def load_df_to_s3(df):
-    """"
-    Load the dataframe to s3 bucket.
+def generate_dataframe_hash(df):
     """
-    filename = "asset_repair_condition.csv"
-    s3_bucket = "alpenmechanik-datalake"
-    s3_folder = "asset_repairs"
-    s3_pathway = f"{s3_bucket}/{s3_folder}"
-    s3_pathway = f"s3://{s3_bucket}/{s3_folder}/{filename}"
-    wr.s3.to_csv(
-                 df=df,
-                 path=s3_pathway,
-                 index=False,
-                 dataset=False
-                )
+    Generate deterministic hash for change detection.
+    """
+
+    try:
+        csv_string = df.to_csv(index=False)
+
+        return hashlib.md5(csv_string.encode("utf-8")).hexdigest()
+
+    except Exception:
+        logger.exception("Failed to generate dataframe hash")
+        raise
 
 
-logger.info("successfully uploaded")
+def load_to_s3(df):
+    """
+    Upload dataframe to S3.
+    """
+
+    try:
+        s3_path = (
+            f"s3://{S3_BUCKET_NAME}/"
+            f"{S3_PREFIX}/{FILENAME}"
+        )
+
+        data_hash = generate_dataframe_hash(df)
+
+        logger.info("Data hash: %s", data_hash)
+
+        logger.info("Uploading file to %s", s3_path)
+
+        wr.s3.to_csv(
+            df=df,
+            path=s3_path,
+            index=False,
+            dataset=False)
+
+        logger.info("Successfully uploaded to %s", s3_path)
+
+        return s3_path
+
+    except Exception:
+        logger.exception("Failed to upload dataframe to S3")
+        raise
 
 
 def run_pipeline():
     """
-    Extract, transform and load.
+    ETL workflow.
     """
-    extract = get_data()
-    transform = transform_all_data_to_csv(extract)
-    load_df_to_s3(transform)
 
+    try:
+        logger.info("Starting asset repair ETL pipeline")
 
-logger.info("Successfull")
+        data = get_data()
+        df = transform_data(data)
+        s3_path = load_to_s3(df)
+
+        logger.info("Pipeline completed successfully")
+
+        return {
+            "status": "success",
+            "records": len(df),
+            "s3_path": s3_path
+        }
+    except Exception:
+        logger.exception("Pipeline execution failed")
+        raise
+
 
 if __name__ == "__main__":
     run_pipeline()
