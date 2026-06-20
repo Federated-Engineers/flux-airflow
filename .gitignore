@@ -12,4 +12,5 @@ terraform.tfvars
 transfer.tf
 user.tf
 variables.tf.envenv
-env
+env/
+buildbuild
