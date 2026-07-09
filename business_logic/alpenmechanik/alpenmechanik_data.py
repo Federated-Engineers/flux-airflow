@@ -1,60 +1,42 @@
 import hashlib
 import logging
-import os
 
 import awswrangler as wr
 import pandas as pd
-
+from airflow.models import Variable
 from plugins.utils.google_sheet import get_data_from_gsheet
 
-logger = logging.getLogger()
-logger.setLevel(logging.INFO)
+logging.basicConfig(level=logging.INFO,
+                    format="%(asctime)s - %(levelname)s - %(message)s")
+logger = logging.getLogger(__name__)
+
+CONFIG = Variable.get("asset_repairs_config", deserialize_json=True)
 
 
-SHEET_KEY = os.environ["SHEET_KEY"]
-SSM_PATH = os.environ["SSM_PATH"]
-S3_BUCKET_NAME = os.environ["S3_BUCKET_NAME"]
-
-S3_PREFIX = "asset_repairs"
-FILENAME = "asset_repair_condition.csv"
-
-
-def get_data():
+def get_and_transform_data():
     """
-    Extract data from Google Sheet.
+    Extract data from Google Sheet and transform it into a pandas DataFrame.
     """
 
     try:
         logger.info("Fetching data from Google Sheet")
 
+        # Extraction
         data = get_data_from_gsheet(
-            sheet_key=SHEET_KEY,
-            ssm_path=SSM_PATH)
+            gsheet_id=CONFIG["SHEET_KEY"],
+            ssm_path=CONFIG["SSM_PATH"]
+        )
 
         if not data:
             raise ValueError("Google Sheet returned no data")
 
         logger.info("Successfully extracted %s records", len(data))
 
-        return data
-    except Exception:
-        logger.exception("Failed to extract data from Google Sheet")
-        raise
-
-
-def transform_data(data):
-    """
-    Convert extracted data to DataFrame.
-    """
-
-    try:
-        if data is None:
-            raise ValueError("Input data is None")
+        # Transformation
         df = pd.DataFrame(data)
 
         if df.empty:
             raise ValueError("Generated DataFrame is empty")
-
         logger.info(
             "Transformed %s rows",
             len(df))
@@ -89,8 +71,8 @@ def load_to_s3(df):
 
     try:
         s3_path = (
-            f"s3://{S3_BUCKET_NAME}/"
-            f"{S3_PREFIX}/{FILENAME}"
+            f"s3://{CONFIG['S3_BUCKET_NAME']}/"
+            f"{CONFIG['S3_PREFIX']}/{CONFIG['FILENAME']}"
         )
 
         data_hash = generate_dataframe_hash(df)
@@ -122,8 +104,7 @@ def run_pipeline():
     try:
         logger.info("Starting asset repair ETL pipeline")
 
-        data = get_data()
-        df = transform_data(data)
+        df = get_and_transform_data()
         s3_path = load_to_s3(df)
 
         logger.info("Pipeline completed successfully")
@@ -138,5 +119,5 @@ def run_pipeline():
         raise
 
 
-if __name__ == "__main__":
-    run_pipeline()
+# Execute the pipeline
+run_pipeline()
