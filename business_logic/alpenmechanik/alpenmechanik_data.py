@@ -4,6 +4,7 @@ import logging
 import awswrangler as wr
 import pandas as pd
 from airflow.models import Variable
+
 from plugins.utils.google_sheet import get_data_from_gsheet
 
 logging.basicConfig(level=logging.INFO,
