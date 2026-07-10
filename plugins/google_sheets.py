@@ -29,7 +29,7 @@ def connect_get_data_from_google_sheet(SHEET_NAME, FILE_PATH):
             SERVICE_ACCOUNT_INFO, scopes=SCOPE
         )
         client = gspread.authorize(credentials)
-        spreadsheet = client.open(SHEET_NAME)
+        spreadsheet = client.open_by_key(SHEET_NAME)
         worksheets = spreadsheet.worksheets()
 
         all_sheets_data = []

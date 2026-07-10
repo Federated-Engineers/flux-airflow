@@ -15,7 +15,7 @@ def get_ssm_parameter(FILE_PATH):
     Returns:
     The parameter value as a string
     Raise:
-    connectionError: if there is an issue connecting to AWS SSM
+    ConnectionError: if there is an issue connecting to AWS SSM
     """
     try:
         ssm = boto3.client("ssm")

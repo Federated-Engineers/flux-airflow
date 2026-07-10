@@ -2,10 +2,9 @@ import hashlib
 import logging
 
 import awswrangler as wr
-import pandas as pd
 from airflow.models import Variable
 
-from plugins.utils.google_sheet import get_data_from_gsheet
+from plugins.google_sheets import connect_get_data_from_google_sheet
 
 logging.basicConfig(level=logging.INFO,
                     format="%(asctime)s - %(levelname)s - %(message)s")
@@ -23,18 +22,18 @@ def get_and_transform_data():
         logger.info("Fetching data from Google Sheet")
 
         # Extraction
-        data = get_data_from_gsheet(
-            gsheet_id=CONFIG["SHEET_KEY"],
-            ssm_path=CONFIG["SSM_PATH"]
+        data = connect_get_data_from_google_sheet(
+            SHEET_NAME=CONFIG["SHEET_KEY"],
+            FILE_PATH=CONFIG["SSM_PATH"]
         )
 
         if not data:
             raise ValueError("Google Sheet returned no data")
 
-        logger.info("Successfully extracted %s records", len(data))
-
         # Transformation
-        df = pd.DataFrame(data)
+        df = data[0]["df"]
+
+        logger.info("Successfully extracted %s records", len(df))
 
         if df.empty:
             raise ValueError("Generated DataFrame is empty")
@@ -76,18 +75,27 @@ def load_to_s3(df):
             f"{CONFIG['S3_PREFIX']}/{CONFIG['FILENAME']}"
         )
 
-        data_hash = generate_dataframe_hash(df)
+        new_hash = generate_dataframe_hash(df)
 
-        logger.info("Data hash: %s", data_hash)
+        logger.info("Data hash: %s", new_hash)
 
-        logger.info("Uploading file to %s", s3_path)
+        # Get metadata
+        metadata = wr.s3.describe_objects(s3_path)\
+            .get(s3_path, {})\
+            .get("Metadata", {})
+        if metadata.get("data-hash") == new_hash:
+            logger.info("Data hash matches S3 metadata. Skip upload.")
+            return s3_path
 
+        # Upload file with the new hash stored in S3 metadata
+        logger.info("Data changed, uploading file to %s", s3_path)
         wr.s3.to_csv(
             df=df,
             path=s3_path,
             index=False,
-            dataset=False)
-
+            dataset=False,
+            s3_additional_kwargs={"Metadata": {"data-hash": new_hash}}
+        )
         logger.info("Successfully uploaded to %s", s3_path)
 
         return s3_path
