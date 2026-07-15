@@ -16,8 +16,8 @@ jobs:
       - name: Build package
         run: |
           rm -rf build
-          mkdir -p build/plugins/utils
-          pip install -r requirements_example.txt -t build --no-cache-dir
+          mkdir -p build/plugins
+          pip install -r requirements.txt -t build --no-cache-dir
 
           rm -rf build/pyarrow build/pyarrow-*.dist-info
           rm -rf build/pandas build/pandas-*.dist-info
@@ -34,10 +34,10 @@ jobs:
 
           cp business_logic/alpenmechanik/lambda_function.py build/
           cp business_logic/alpenmechanik/alpenmechanik_data.py build/
-          cp plugins/utils/google_sheet.py build/plugins/utils/
-          cp plugins/utils/aws.py build/plugins/utils/
+          cp plugins/google_sheet.py build/plugins/
+          cp plugins/aws.py build/plugins/
           touch build/plugins/__init__.py
-          touch build/plugins/utils/__init__.py
+          touch build/plugins/__init__.py
 
           cd build && zip -r ../lambda.zip . && cd ..
           sha256sum lambda.zip | awk '{print $1}' > sha256.txt
