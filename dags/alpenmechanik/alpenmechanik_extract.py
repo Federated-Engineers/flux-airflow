@@ -2,6 +2,7 @@ from datetime import datetime, timedelta
 
 from airflow.providers.standard.operators.python import PythonOperator
 from airflow.sdk import DAG
+
 from business_logic.alpenmechanik.alpenmechanik_data import run_pipeline
 
 DAG_ID = "alpenmechanik_data_AG"
