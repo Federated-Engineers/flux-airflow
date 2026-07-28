@@ -1,8 +1,9 @@
-import hashlib
 import logging
+import hashlib
 
 import awswrangler as wr
 from airflow.models import Variable
+
 from plugins.current_date import get_current_day_month_year
 from plugins.google_sheets import connect_get_data_from_google_sheet
 
