@@ -3,14 +3,16 @@ import logging
 
 import awswrangler as wr
 from airflow.models import Variable
-
+from plugins.current_date import get_current_day_month_year
 from plugins.google_sheets import connect_get_data_from_google_sheet
 
 logging.basicConfig(level=logging.INFO,
                     format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
 
+
 CONFIG = Variable.get("asset_repairs_config", deserialize_json=True)
+upload_date = get_current_day_month_year()
 
 
 def get_and_transform_data():
@@ -66,62 +68,99 @@ def generate_dataframe_hash(df):
 
 def load_to_s3(df):
     """
-    Upload dataframe to S3.
+    Upload dataframe to S3 while preserving a chronological file history.
+    Only skips uploads if data matches the most recent historical snapshot.
     """
-
+    # Convert the dictionary into a clean string (YYYY-MM-DD)
+    formatted_date = (
+                        f"{upload_date['year']}-"
+                        f"{upload_date['month']:02d}-"
+                        f"{upload_date['day']:02d}"
+    )
+    # Define the base directory path in S3
+    base_prefix_path = (
+                        f"s3://{CONFIG['S3_BUCKET_NAME']}/"
+                        f"{CONFIG['S3_PREFIX']}/"
+    )
     try:
-        s3_path = (
-            f"s3://{CONFIG['S3_BUCKET_NAME']}/"
-            f"{CONFIG['S3_PREFIX']}/{CONFIG['FILENAME']}"
+        # Unique file path for the incoming run
+        new_s3_path = (
+                        f"{base_prefix_path}"
+                        f"{formatted_date}_{CONFIG['FILENAME']}"
         )
-
         new_hash = generate_dataframe_hash(df)
-
         logger.info("Data hash: %s", new_hash)
 
-        # Get metadata
-        metadata = wr.s3.describe_objects(s3_path)\
-            .get(s3_path, {})\
-            .get("Metadata", {})
-        if metadata.get("data-hash") == new_hash:
-            logger.info("Data hash matches S3 metadata. Skip upload.")
-            return s3_path
+        # Safely attempt to fetch objects under the prefix folder
+        objects_meta_list = wr.s3.list_objects(path=base_prefix_path)
 
-        # Upload file with the new hash stored in S3 metadata
-        logger.info("Data changed, uploading file to %s", s3_path)
+        # If files exist, find the latest snapshot to check against
+        if objects_meta_list:
+            all_objects_meta = wr.s3.describe_objects(path=base_prefix_path)
+            sorted_history_paths = sorted(all_objects_meta.keys())
+            latest_historical_file = sorted_history_paths[-1]
+            logger.info("Comparing hash against latest history snapshot: %s",
+                        latest_historical_file,
+                        )
+            # Pull hash metadata from that specific historical data file
+            metadata = (
+                all_objects_meta[latest_historical_file].get("Metadata", {})
+            )
+            # Skip if the content matches your latest historical version
+            if metadata.get("data-hash") == new_hash:
+                logger.info("Data hash matches latest history file."
+                            "Skip upload to preserve storage.")
+                # RETURN FALSE: Path found, but NO new upload happened
+                return latest_historical_file, False
+
+        # Data changed,
+        # Upload a new file to maintain full historical records
+        logger.info("Data changed or first run."
+                    "Uploading historical file to %s",
+                    new_s3_path,
+                    )
         wr.s3.to_csv(
             df=df,
-            path=s3_path,
+            path=new_s3_path,
             index=False,
             dataset=False,
             s3_additional_kwargs={"Metadata": {"data-hash": new_hash}}
         )
-        logger.info("Successfully uploaded to %s", s3_path)
-
-        return s3_path
-
     except Exception:
-        logger.exception("Failed to upload dataframe to S3")
-        raise
+        logger.info("Successfully uploaded historical data to %s", new_s3_path)
+
+    # RETURN TRUE: A new history file was actually uploaded
+    return new_s3_path, True
 
 
 def run_pipeline():
     """
     ETL workflow.
     """
-
     try:
         logger.info("Starting asset repair ETL pipeline")
 
         df = get_and_transform_data()
-        s3_path = load_to_s3(df)
+        # Unpack both the path and the action flag
+        s3_path, was_uploaded = load_to_s3(df)
 
-        logger.info("Pipeline completed successfully")
-
+        if was_uploaded:
+            logger.info("Pipeline completed successfully -"
+                        "New historical data saved.")
+            return {
+                "status": "success_uploaded",
+                "records": len(df),
+                "s3_path": s3_path,
+                "data_changed": True
+            }
+        # If it wasn't uploaded, log the specific skipped message explicitly
+        logger.info("Pipeline completed -"
+                    "No data changes detected. Upload skipped.")
         return {
-            "status": "success",
+            "status": "success_skipped",
             "records": len(df),
-            "s3_path": s3_path
+            "s3_path": s3_path,
+            "data_changed": False
         }
     except Exception:
         logger.exception("Pipeline execution failed")

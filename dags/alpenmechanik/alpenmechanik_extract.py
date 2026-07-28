@@ -1,8 +1,8 @@
 from datetime import datetime, timedelta
 
-from airflow.providers.amazon.aws.operators.lambda_function import \
-    LambdaInvokeFunctionOperator
+from airflow.providers.standard.operators.python import PythonOperator
 from airflow.sdk import DAG
+from business_logic.alpenmechanik.alpenmechanik_data import run_pipeline
 
 DAG_ID = "alpenmechanik_data_AG"
 
@@ -21,11 +21,9 @@ with DAG(
     catchup=False,
     tags=["alpenmechanik"],
 ) as dag:
-
-    trigger_lambda = LambdaInvokeFunctionOperator(
-        task_id="trigger_sheet_transformer",
-        function_name="sheet-transformer",
-        aws_conn_id="aws_default",
-        invocation_type="RequestResponse",
-        log_type="Tail",
+    alpinemechanik_data = PythonOperator(
+        task_id="alpinemechanik_data",
+        python_callable=run_pipeline,
     )
+
+alpinemechanik_data
