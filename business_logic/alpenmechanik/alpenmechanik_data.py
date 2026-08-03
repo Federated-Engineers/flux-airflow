@@ -18,7 +18,7 @@ upload_date = get_current_day_month_year()
 
 def get_and_transform_data():
     """
-    Extract data from Google Sheet and transform it into a pandas DataFrame. 
+    Extract data from Google Sheet and transform it into a pandas DataFrame.
     """
 
     try:
@@ -35,7 +35,6 @@ def get_and_transform_data():
 
         # Transformation
         df = data[0]["df"]
-
         logger.info("Successfully extracted %s records", len(df))
 
         if df.empty:
