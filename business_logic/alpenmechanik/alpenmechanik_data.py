@@ -35,7 +35,6 @@ def get_and_transform_data():
 
         # Transformation
         df = data[0]["df"]
-
         logger.info("Successfully extracted %s records", len(df))
 
         if df.empty:
