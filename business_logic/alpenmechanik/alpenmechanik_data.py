@@ -1,7 +1,7 @@
 import hashlib
 import logging
 
-import awswrangler as wr
+import awswrangler as wr 
 from airflow.models import Variable
 
 from plugins.current_date import get_current_day_month_year
