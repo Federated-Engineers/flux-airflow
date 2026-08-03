@@ -1,7 +1,7 @@
 import hashlib
 import logging
 
-import awswrangler as wr 
+import awswrangler as wr
 from airflow.models import Variable
 
 from plugins.current_date import get_current_day_month_year
@@ -18,7 +18,7 @@ upload_date = get_current_day_month_year()
 
 def get_and_transform_data():
     """
-    Extract data from Google Sheet and transform it into a pandas DataFrame.
+    Extract data from Google Sheet and transform it into a pandas DataFrame. 
     """
 
     try:
